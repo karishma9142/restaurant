@@ -47,7 +47,7 @@ const schema = new Schema<IRestaurant>({
     },
     autoLocation: {
         type: {
-            String,
+            type : String ,
             enum: ['Point'],
             required: true
         },
