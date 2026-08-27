@@ -23,9 +23,9 @@ export const addRestaurant = TryCatch(async (req: AuthenticatedRequest, res) => 
         });
     }
 
-    const { name, description, latitdude, longitude, formattedAddress, phone } = req.body();
+    const { name, description, latitude, longitude, formattedAddress, phone } = req.body;
 
-    if (!name || !latitdude || !longitude) {
+    if (!name || !latitude || !longitude) {
         return res.status(400).json({
             msg: 'pleast fill all details'
         })
@@ -58,9 +58,10 @@ export const addRestaurant = TryCatch(async (req: AuthenticatedRequest, res) => 
         ownerId: user._id,
         autoLocation: {
             type: 'Point',
-            coordinates: [Number(longitude), Number(latitdude)],
+            coordinates: [Number(longitude), Number(latitude)],
             formattedAddress,
         },
+        isVerified : false
 
     });
 
@@ -81,7 +82,7 @@ export const FetchMyRestaurant = TryCatch(
         });
         if (!restaraunt) {
             return res.status(400).json({
-                msg: "Invalid user"
+                msg: "No restaurat found"
             })
         }
 
