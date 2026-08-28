@@ -72,40 +72,38 @@ export const addRestaurant = TryCatch(async (req: AuthenticatedRequest, res) => 
 
 export const FetchMyRestaurant = TryCatch(
     async (req: AuthenticatedRequest, res) => {
+
         if (!req.user) {
-            return res.status(401).json({
-                msg: "Please Login"
-            })
+            return res.status(401).json({ msg: "Please Login" });
         }
-        const restaraunt = await Restaurant.findOne({
+
+        const restaurant = await Restaurant.findOne({
             ownerId: req.user._id
         });
-        if (!restaraunt) {
-            return res.status(400).json({
-                msg: "No restaurat found"
-            })
+
+        if (!restaurant) {
+            return res.status(404).json({ msg: "No restaurant found" });
         }
 
-        if (!req.user.restaurandId) {
-            const token = jwt.sign({
-                user: {
-                    ...req.user,
-                    restarauntId: restaraunt._id,
-                },
-            },
-                process.env.JWT_SEC as string,
+        console.log(req.user.restaurandId);
+        if (!req.user.restaurandId) {   // fixed typo
+            const token = jwt.sign(
                 {
-                    expiresIn: "15"
-                }
+                    user: {
+                        _id: req.user._id,
+                        name: req.user.name,
+                        email: req.user.email,
+                        role: req.user.role,           // <-- added, critical
+                        restaurandId: restaurant._id
+                    }
+                },
+                process.env.JWT_SEC as string,
+                { expiresIn: "15d" }
             );
-            return res.json({
-                restaraunt,
-                token
-            })
+
+            return res.json({ restaurant, token });
         }
-        return res.json({
-            restaraunt
-        })
+
+        return res.json({ restaurant });
     }
 );
-
