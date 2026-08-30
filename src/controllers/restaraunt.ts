@@ -4,6 +4,7 @@ import { AuthenticatedRequest } from "../middleware/isAuth.js";
 import TryCatch from "../middleware/trycatch.js";
 import Restaurant from "../model/Restaurant.js";
 import jwt from 'jsonwebtoken';
+import { execPath } from "process";
 
 export const addRestaurant = TryCatch(async (req: AuthenticatedRequest, res) => {
     const user = req.user;
@@ -61,7 +62,7 @@ export const addRestaurant = TryCatch(async (req: AuthenticatedRequest, res) => 
             coordinates: [Number(longitude), Number(latitude)],
             formattedAddress,
         },
-        isVerified : false
+        isVerified: false
 
     });
 
@@ -107,3 +108,61 @@ export const FetchMyRestaurant = TryCatch(
         return res.json({ restaurant });
     }
 );
+
+export const updateStatusRestaurant = TryCatch(async (req: AuthenticatedRequest, res) => {
+    if (!req.user) {
+        return res.status(403).json({
+            msg: "please login"
+        })
+    }
+
+    const { status } = req.body;
+    if (typeof status !== 'boolean') {
+        return res.status(400).json({
+            msg: "status must be boolean"
+        })
+    }
+
+    const restaurant = await Restaurant.findOneAndUpdate(
+        { ownerId: req.user._id },
+        { isOpen: status },
+        { new: true }
+    );
+
+    if (!restaurant) {
+        return res.status(404).json({
+            msg: "Restaurant not found"
+        })
+    }
+
+    res.json({
+        msg: "Restaunarn stauts updated",
+        restaurant
+    })
+});
+
+export const updateRestaurant = TryCatch(async (req: AuthenticatedRequest, res) => {
+    if (!req.user) {
+        return res.status(403).json({
+            msg: "please login"
+        })
+    }
+
+    const { name, description } = req.body;
+    const restaurant = await Restaurant.findOneAndUpdate(
+        { ownerId: req.user._id },
+        { name, description },
+        { new: true }
+    );
+
+    if (!restaurant) {
+        return res.status(404).json({
+            msg: "Restaurant not found"
+        })
+    }
+
+    res.json({
+        msg: "Restaunarn updated",
+        restaurant
+    })
+})
