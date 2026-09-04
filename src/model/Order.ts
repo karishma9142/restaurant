@@ -3,7 +3,7 @@ import mongoose, { Document, Schema } from "mongoose";
 export interface IOrder extends Document {
     userId: string;
     restaurantId: string;
-    restaurantNmane: string;
+    restaurantName: string;
     riderId: string | null;
     riderPhone: string | null;
     riderName: string | null;
@@ -13,7 +13,7 @@ export interface IOrder extends Document {
     items: {
         itemId: string
         name: string;
-        price: string;
+        price: number;
         quantity: number
     }[];
 
@@ -50,6 +50,10 @@ const schema = new Schema<IOrder>({
         type: String,
         required: true
     },
+     restaurantName: {
+        type: String,
+        required: true
+    },
     riderId: {
         type: String,
         default: null
@@ -75,7 +79,7 @@ const schema = new Schema<IOrder>({
         {
             itemId: String,
             name: String,
-            price: String,
+            price: Number,
             quantity: Number
 
         },
