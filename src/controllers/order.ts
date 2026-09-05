@@ -16,8 +16,7 @@ export const createOrder = TryCatch(
             });
         }
 
-        const { paymentMethod, addressId, distance } = req.body;
-
+        const { paymentMethod, addressId } = req.body;
         if (!addressId) {
             return res.status(400).json({
                 msg: "Address is required"
@@ -34,6 +33,30 @@ export const createOrder = TryCatch(
                 msg: "Address not found"
             });
         }
+        const getDistanceKm = (
+            lat1: number,
+            lon1: number,
+            lat2: number,
+            lon2: number,
+        ): number => {
+            const R = 6371;
+
+            const dLat = ((lat2 - lat1) * Math.PI) / 180;
+            const dLon = ((lon2 - lon1) * Math.PI) / 180;
+
+            const a =
+                Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+                Math.cos((lat1 * Math.PI) / 180) *
+                Math.cos((lat2 * Math.PI) / 180) *
+                Math.sin(dLon / 2) *
+                Math.sin(dLon / 2);
+
+            const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+
+            return +(R * c).toFixed(2);
+        };
+
+       
 
         const cartItems = await Cart.find({
             userid: user._id
@@ -71,6 +94,12 @@ export const createOrder = TryCatch(
             });
         }
 
+        const distance = getDistanceKm(
+            address.location.coordinates[1],
+            address.location.coordinates[0],
+            restaurant.autoLocation.coordinates[1],
+            restaurant.autoLocation.coordinates[0]
+        )
         let subtotal = 0;
 
         const orderItems = cartItems.map((cart) => {
@@ -134,40 +163,40 @@ export const createOrder = TryCatch(
             }
         });
 
-        await Cart.deleteMany({userid : user._id});
+        await Cart.deleteMany({ userid: user._id });
 
         return res.status(201).json({
             msg: "Order created successfully",
-            orderId : order._id.toString(),
-            amount : totalAmount
+            orderId: order._id.toString(),
+            amount: totalAmount
         });
     }
 );
 
-export const fetchOrderForPayment = TryCatch(async(req,res)=> {
-    if(req.headers['x-internal-key'] !== process.env.INTERNAL_SERVICE_KAY){
+export const fetchOrderForPayment = TryCatch(async (req, res) => {
+    if (req.headers['x-internal-key'] !== process.env.INTERNAL_SERVICE_KAY) {
         return res.status(403).json({
-            msg : "Forbidden"
+            msg: "Forbidden"
         });
     }
 
     const order = await Order.findById(req.params.id);
 
-    if(!order){
+    if (!order) {
         return res.status(404).json({
-            msg : "Order not found"
+            msg: "Order not found"
         });
     }
 
-    if(order.paymentStatus !== 'pending'){
+    if (order.paymentStatus !== 'pending') {
         return res.status(404).json({
-            msg : "Order already paid"
+            msg: "Order already paid"
         });
     }
 
     res.json({
-        orderId : order._id,
-        amount : order.totalAmount,
-        currency : 'INR'
+        orderId: order._id,
+        amount: order.totalAmount,
+        currency: 'INR'
     })
 })

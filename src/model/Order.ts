@@ -5,7 +5,7 @@ export interface IOrder extends Document {
     restaurantId: string;
     restaurantName: string;
     riderId: string | null;
-    riderPhone: string | null;
+    riderPhone: number | null;
     riderName: string | null;
     distance: number;
     riderAmount: number;
@@ -25,7 +25,7 @@ export interface IOrder extends Document {
     addressId: string;
 
     deliveryAddress: {
-        fromattedAddress: string;
+        formattedAddress: string;
         mobile: number;
         latitude: number;
         longitude: number;
@@ -96,8 +96,8 @@ const schema = new Schema<IOrder>({
     },
 
     deliveryAddress : {
-        fromattedAddress : {type : String , required : true},
-        mobile : {type : String , required : true},
+        formattedAddress : {type : String , required : true},
+        mobile : {type : Number , required : true},
         latitude : Number,
         longitude : Number
     },

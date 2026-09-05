@@ -49,36 +49,40 @@ return res.json({
 })
 });
 
-export const fetchMyCart = TryCatch(async(req:AuthenticatedRequest , res) => {
-    if(!req.user){
-        return res.status(400).json({
-            msg : 'Please login'
-        })
+export const fetchMyCart = TryCatch(
+    async (req: AuthenticatedRequest, res) => {
+        if (!req.user) {
+            return res.status(401).json({
+                msg: "Please login"
+            });
+        }
+
+        const userid = req.user._id;
+
+        const cartItems = await Cart.find({ userid })
+            .populate("itemId")
+            .populate("restaurantId");
+
+        let subtotal = 0;
+        let cartLength = 0;
+
+        for (const cartItem of cartItems) {
+            const item: any = cartItem.itemId;
+
+            if (!item) continue;
+
+            subtotal += item.price * cartItem.quantity;
+            cartLength += cartItem.quantity;
+        }
+
+        return res.json({
+            success: true,
+            cartLength,
+            subtotal,
+            cart: cartItems
+        });
     }
-
-    const userid = req.user._id;
-
-    const cartItems = await Cart.find({userid})
-    .populate('itemId')
-    .populate('restaurantId')
-
-    let subtotal=0;
-    let cartLength = 0;
-
-    for(const cartItem of cartItems){
-        const item:any = cartItem.itemId;
-
-        subtotal += item.price * cartItem.quantity;
-        cartLength +=cartItem.quantity;
-    }
-
-    return res.json({
-        success : true,
-        cartLength,
-        subtotal,
-        cart : cartItems,
-    })
-});
+);
 
 export const incrementCartitem = TryCatch(async (req:AuthenticatedRequest , res) => {
     const userid = req.user?._id;
