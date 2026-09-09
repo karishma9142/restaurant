@@ -1,3 +1,4 @@
+import axios from "axios";
 import Order from "../model/Order.js";
 import { getChannel } from "./rabbitmq.js";
 
@@ -41,6 +42,8 @@ export const startPaymentConsumer = async () => {
             console.log('order palced', order._id);
 
             // socket work
+
+            // await axios.post()
 
             channel.ack(msg);
         } catch (error) {
