@@ -128,7 +128,7 @@ export const createOrder = TryCatch(
             subtotal + deliveryFee + platfromFee;
 
         const expireAt = new Date(
-            Date.now() + 15 * 60 * 1000
+            Date.now() + 60 * 60 * 1000
         );
 
         const [longitude, latitude] = address.location.coordinates;
@@ -269,7 +269,7 @@ export const updateOrderStatus = TryCatch(async(req:AuthenticatedRequest , res) 
         });
     }
 
-    if(restaurant.ownerId !== user._id){
+    if(restaurant.ownerId.toString() !== String(user._id)){
         return res.status(401).json({
             msg: "You are not allowed to update this order"
         });

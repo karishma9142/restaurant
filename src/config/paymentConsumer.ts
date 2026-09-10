@@ -42,7 +42,17 @@ export const startPaymentConsumer = async () => {
             console.log('order palced', order._id);
 
             // socket work
-
+            await axios.post(`${process.env.REALTIME_SERVER}/api/v1/internal/emit`, {
+                event: "order:new",
+                room: `restaurnat:${order.restaurantId}`,
+                payload: {
+                    orderId: order._id,
+                }
+            }, {
+                headers: {
+                    'x-internal-key': process.env.INTERNAL_SERVICE_KAY,
+                },
+            });
             // await axios.post()
 
             channel.ack(msg);

@@ -3,6 +3,7 @@ import { AuthenticatedRequest } from "../middleware/isAuth.js";
 import TryCatch from "../middleware/trycatch.js";
 import Cart from "../model/Cart.js";
 
+
 export const addCart = TryCatch(async(req : AuthenticatedRequest , res) => {
     if(!req.user){
         return res.status(400).json({
