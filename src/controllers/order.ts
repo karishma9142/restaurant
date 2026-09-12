@@ -128,7 +128,7 @@ export const createOrder = TryCatch(
             subtotal + deliveryFee + platfromFee;
 
         const expireAt = new Date(
-            Date.now() + 60 * 60 * 1000
+            Date.now() +  24 * 60 * 60 * 1000
         );
 
         const [longitude, latitude] = address.location.coordinates;
@@ -224,7 +224,7 @@ export const fetchRestaurantOrders = TryCatch(async (req: AuthenticatedRequest, 
 
     return res.json({
         success : true ,
-        count : orders.length,
+        count : orders.length ,
         orders
     });
 });

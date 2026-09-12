@@ -4,12 +4,13 @@ import { createOrder, fetchOrderForPayment, fetchRestaurantOrders, fetchSingleOr
 
 const router = express.Router();
 
+router.get('/myorder' , IsAuth , getMyOrders);
+router.get('/:id' , IsAuth , fetchSingleOrder);
 router.post('/new' , IsAuth , createOrder);
 router.get('/payment/:id' , fetchOrderForPayment);
-router.get('/:restaurantId' , IsAuth , isSeller , fetchRestaurantOrders);
+router.get('/restaurant/:restaurantId' , IsAuth , isSeller , fetchRestaurantOrders);
 router.put('/:orderId' , IsAuth , isSeller , updateOrderStatus);
-router.get('/my' , IsAuth , getMyOrders);
-router.get('/:id' , IsAuth , fetchSingleOrder);
+
 
 
 
