@@ -426,6 +426,7 @@ export const getCurrentOrderForRider = TryCatch(async (req, res) => {
         });
     }
 
+    // console.log(riderId);
     if (typeof riderId !== "string") {
         return res.status(400).json({
             message: "Invalid riderId"
@@ -435,13 +436,21 @@ export const getCurrentOrderForRider = TryCatch(async (req, res) => {
     const order = await Order.findOne({
         riderId,
         status: { $ne: 'delivered' }
-    }).populate('restaurantId')
+    }).populate('restaurantId');
 
+    console.log(order);
     if (!order) {
         return res.status(404).json({
             message: "Order not found"
         });
     }
+
+//     console.log("Rider ID received:", riderId);
+
+//     const orders = await Order.find({})
+//     .select("riderId status");
+
+// console.log("All order rider IDs:", orders);
 
     res.json(order);
 });
@@ -522,4 +531,4 @@ export const updateOrderStatusRider = TryCatch(async (req, res) => {
             message: "order updated successfully"
         })
     }
-})
+});
