@@ -363,6 +363,15 @@ export const assignRiderToOrder = TryCatch(async (req, res) => {
     }
 
     const { orderId, riderId, riderName, riderPhone } = req.body;
+
+    const orderAvailable = await Order.findOne({riderId , status:{$ne : "delivered"}});
+
+    if(orderAvailable){
+        return res.status(400).json({
+            message : "you already have an order"
+        })
+    }
+
     const order = await Order.findById(orderId);
 
     if (order?.riderId !== null) {
@@ -412,7 +421,7 @@ export const assignRiderToOrder = TryCatch(async (req, res) => {
 });
 
 export const getCurrentOrderForRider = TryCatch(async (req, res) => {
-    if (req.headers['x-internal-key'] !== process.env.INTERNAL_SERVICE_KAY) {
+    if (req.headers["x-internal-key"] !== process.env.INTERNAL_SERVICE_KAY) {
         return res.status(403).json({
             msg: "Forbidden"
         });
@@ -420,39 +429,28 @@ export const getCurrentOrderForRider = TryCatch(async (req, res) => {
 
     const { riderId } = req.query;
 
-    if (!riderId) {
+    if (!riderId || typeof riderId !== "string") {
         return res.status(400).json({
-            message: 'Rider id is requrid'
-        });
-    }
-
-    // console.log(riderId);
-    if (typeof riderId !== "string") {
-        return res.status(400).json({
-            message: "Invalid riderId"
+            message: "Valid rider ID is required"
         });
     }
 
     const order = await Order.findOne({
-        riderId,
-        status: { $ne: 'delivered' }
-    }).populate('restaurantId');
+        riderId: riderId,
+        status: {
+            $in: ["rider_assigned", "picked_up"]
+        }
+    }).populate("restaurantId").sort({ createdAt: -1 });
 
-    console.log(order);
     if (!order) {
-        return res.status(404).json({
-            message: "Order not found"
+        return res.status(200).json({
+            order: null
         });
     }
 
-//     console.log("Rider ID received:", riderId);
-
-//     const orders = await Order.find({})
-//     .select("riderId status");
-
-// console.log("All order rider IDs:", orders);
-
-    res.json(order);
+    return res.status(200).json({
+        order
+    });
 });
 
 export const updateOrderStatusRider = TryCatch(async (req, res) => {
@@ -462,7 +460,7 @@ export const updateOrderStatusRider = TryCatch(async (req, res) => {
         });
     }
 
-    const orderId = req.body;
+    const {orderId} = req.body;
 
     const order = await Order.findById(orderId);
 

@@ -12,7 +12,7 @@ router.get('/restaurant/:restaurantId' , IsAuth , isSeller , fetchRestaurantOrde
 router.put('/:orderId' , IsAuth , isSeller , updateOrderStatus);
 router.put('/assign/rider' , assignRiderToOrder);
 router.get('/current/rider' , getCurrentOrderForRider);
-router.purge('update/status/rider' , updateOrderStatusRider);
+router.put('/update/status/rider' , updateOrderStatusRider);
 
 
 export default router;
